@@ -1,11 +1,57 @@
 from django.shortcuts import render, redirect
-from django.views.generic.base import TemplateView
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import RegistrationForm
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+import json
+from rest_framework.authtoken.models import Token
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import check_password
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login_user(request):
+
+        data = {}
+        reqBody = json.loads(request.body)
+        email1 = reqBody['Email_Address']
+        print(email1)
+        password = reqBody['password']
+        try:
+
+            Account = User.objects.get(Email_Address=email1)
+        except BaseException as e:
+            raise ValidationError({"400": f'{str(e)}'})
+
+        token = Token.objects.get_or_create(user=Account)[0].key
+        print(token)
+        if not check_password(password, Account.password):
+            raise ValidationError({"message": "Incorrect Login credentials"})
+
+        if Account:
+            if Account.is_active:
+                print(request.user)
+                login(request, Account)
+                data["message"] = "user logged in"
+                data["email_address"] = Account.email
+
+                Res = {"data": data, "token": token}
+
+                return Response(Res)
+
+            else:
+                raise ValidationError({"400": f'Account not active'})
+
+        else:
+            raise ValidationError({"400": f'Account doesnt exist'})
+
+
+
 def index(request):
     return render(request, 'hrms/home/home.html')
 
