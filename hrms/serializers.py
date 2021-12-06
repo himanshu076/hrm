@@ -2,6 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from . models import Department, Employee
 
+
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -11,7 +12,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "zipcode",
             "Date_of_Birth",
             "password",
-
         ]
 
         extra_kwargs = {"password": {"write_only": True}}

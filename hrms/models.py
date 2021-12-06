@@ -132,4 +132,4 @@ class Recruitment(models.Model):
         return self.first_name +' - '+self.position
 
 
-    
+    # https://medium.com/geekculture/register-login-and-logout-users-in-django-rest-framework-51486390c29
